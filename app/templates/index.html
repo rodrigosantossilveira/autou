@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>1) Envie o email</h2>
+  <form action="/process" method="post" enctype="multipart/form-data" class="grid">
+    <div>
+      <label for="upload">Arquivo (.txt ou .pdf)</label>
+      <input type="file" id="upload" name="upload" accept=".txt,.pdf">
+      <p class="hint">Ou cole o conteúdo no campo ao lado.</p>
+    </div>
+
+    <div>
+      <label for="text_input">Texto do email</label>
+      <textarea id="text_input" name="text_input" rows="10" placeholder="Cole aqui o texto do email..."></textarea>
+    </div>
+
+    <div class="full">
+      <button type="submit">Processar</button>
+    </div>
+  </form>
+</section>
+
+{% if error %}
+  <section class="card error">
+    <strong>{{ error }}</strong>
+  </section>
+{% endif %}
+
+{% if result %}
+<section class="card">
+  <h2>2) Resultado</h2>
+  <div class="result-grid">
+    <div>
+      <div class="pill {{ 'prod' if result.category == 'Produtivo' else 'improd' }}">
+        {{ result.category }}
+      </div>
+      <p><strong>Confiança:</strong> {{ (result.confidence * 100) | round(0) | int }}%</p>
+      <p><strong>Modelo:</strong> {{ result.model }} {% if result.used_ai %} <span class="badge">com IA</span>{% else %}<span class="badge">baseline</span>{% endif %}</p>
+      <p><strong>Principais termos:</strong> {{ ', '.join(result.keywords) }}</p>
+    </div>
+    <div>
+      <label>Resposta sugerida</label>
+      <textarea id="reply" rows="10">{{ result.reply }}</textarea>
+      <div class="btn-row">
+        <button type="button" onclick="copyReply()">Copiar</button>
+        <button type="button" onclick="downloadJSON()">Baixar JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <details class="mt">
+    <summary>Ver texto analisado</summary>
+    <pre class="code">{{ (original_text or '')[:15000] }}</pre>
+  </details>
+</section>
+{% endif %}
+{% endblock %}
